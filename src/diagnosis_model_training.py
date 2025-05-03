@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report
 from sklearn.utils import resample
+from imblearn.over_sampling import SMOTE    
 
 #Doc du lieu tu file csv theo chunk
 processed_chunks = []
@@ -58,14 +59,8 @@ df_minority_class_3 = X[X['diag'] == 3.0]
 # Giảm mẫu lớp 0 để khớp với kích thước của lớp 1
 df_majority_downsampled = df_majority.sample(n=len(df_minority_class_1), random_state=42)
 
-# Tăng mẫu lớp 3 để khớp với kích thước của lớp 1
-df_minority_class_3_oversampled = resample(df_minority_class_3,
-                                           replace=True,
-                                           n_samples=len(df_minority_class_1),
-                                           random_state=42)
-
 # Kết hợp lại các lớp đã xử lý
-df_balanced = pd.concat([df_majority_downsampled, df_minority_class_1,df_minority_class_2, df_minority_class_3_oversampled])
+df_balanced = pd.concat([df_majority_downsampled, df_minority_class_1,df_minority_class_2, df_minority_class_3])
 
 # Trộn ngẫu nhiên lại dữ liệu
 df_balanced = df_balanced.sample(frac=1, random_state=42)
@@ -74,8 +69,11 @@ df_balanced = df_balanced.sample(frac=1, random_state=42)
 y_balanced = df_balanced['diag']
 X_balanced = df_balanced.drop(columns=['diag'])
 
+#Sử dụng SMOTE để tạo mẫu cho lớp thiểu số
+sm=SMOTE(random_state=42)
+X_resampled, y_resampled = sm.fit_resample(X_balanced , y_balanced)
 # Chia dữ liệu thành tập huấn luyện và tập kiểm tra
-X_train, X_test, y_train, y_test = train_test_split(X_balanced, y_balanced, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.2, random_state=42)
 
 # Mô hình huấn luyện
 model = RandomForestClassifier(random_state=42)
