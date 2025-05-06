@@ -123,6 +123,52 @@ class NeuroSight(Model):
             name="classification_thresholds"
         )
 
+    def build(self, input_shape):
+        """
+        Xây dựng mô hình và khởi tạo các layer với kích thước đầu vào cụ thể.
+        
+        Parameters:
+        - input_shape: tuple, kích thước đầu vào (batch_size, time_steps, features)
+        """
+        # Create a sample input tensor to build the model
+        dummy_input = tf.keras.Input(shape=input_shape[1:])
+        
+        # Pass through convolutional layers
+        x = dummy_input
+        for layer in self.conv_layers:
+            if isinstance(layer, layers.Lambda):
+                x = layer(x)  # SE blocks are Lambda layers
+            else:
+                x = layer(x)
+        
+        # RNN layers if used
+        if self.use_rnn:
+            batch_size = tf.shape(x)[0]
+            seq_inputs = tf.reshape(x, [batch_size, self.config.get("seq_length", 1), -1])
+            
+            for rnn_layer in self.rnn_layers:
+                seq_inputs = rnn_layer(seq_inputs)
+                
+            if self.use_attention:
+                e = self.attention_layer(seq_inputs)
+                a = self.attention_weights(e)
+                context = tf.reduce_sum(a * seq_inputs, axis=1)
+                x = context
+            else:
+                x = seq_inputs
+        
+        # Dense layers
+        x = self.intermediate_dense(x)
+        outputs = self.output_layer(x)
+        
+        # Build the model
+        model = Model(inputs=dummy_input, outputs=outputs)
+        
+        # This builds all layers
+        super(NeuroSight, self).build(input_shape)
+        
+        return model
+
     def _create_se_block(self, channels, ratio=16):
         """Create a squeeze-excitation block as a Keras layer"""
         se_global_pool = layers.GlobalAveragePooling1D()

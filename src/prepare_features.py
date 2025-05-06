@@ -79,13 +79,13 @@ pivot_df = agg_df.pivot_table(
     aggfunc='first'
 ).reset_index()
 
-# Đảm bảo có đúng 15 cột đặc trưng
+# Đảm bảo có đúng 12 cột đặc trưng
 # Nếu thiếu, thêm cột với giá trị là dictionary rỗng
 for feature in features_list:
     if feature not in pivot_df.columns:
         pivot_df[feature] = [{}] * len(pivot_df)
 
-# Chỉ giữ lại các cột cần thiết (STUDY_PAT_ID và 15 đặc trưng)
+# Chỉ giữ lại các cột cần thiết (STUDY_PAT_ID và 12 đặc trưng)
 final_df = pivot_df[['STUDY_PAT_ID'] + features_list]
 
 # Lưu kết quả
