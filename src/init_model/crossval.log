@@ -1,0 +1,39 @@
+2025-05-03 13:11:36 [INFO ] Running all 5 folds with config config/sleepedfx.py
+2025-05-03 13:11:36 [INFO ] Training fold 0
+2025-05-03 13:11:36 [INFO ] Loaded 3 subjects from sleepedfx
+2025-05-03 13:11:36 [INFO ] Subject 10003 -> Files: ['./data/processed/data_10003.pkl']
+2025-05-03 13:11:36 [INFO ] Subject 10006 -> Files: ['./data/processed/data_10006.pkl']
+2025-05-03 13:11:36 [INFO ] Subject 10000 -> Files: ['./data/processed/data_10000.pkl']
+2025-05-03 13:11:36 [INFO ] Train set: 930 samples
+2025-05-03 13:11:36 [INFO ] Valid set: 997 samples
+2025-05-03 13:11:36 [INFO ] Test set: 983 samples
+2025-05-03 13:11:36 [INFO ] --------------------------------------------
+2025-05-03 13:11:36 [INFO ] Train set class distribution:
+2025-05-03 13:11:36 [INFO ] Sleep stage W: 50 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage N1: 42 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage N2: 482 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage N3: 200 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage R: 156 samples
+2025-05-03 13:11:36 [INFO ] Obstructive Apnea: 19 samples
+2025-05-03 13:11:36 [INFO ] Obstructive Hypopnea: 34 samples
+2025-05-03 13:11:36 [INFO ] Mixed Apnea: 0 samples
+2025-05-03 13:11:36 [INFO ] Central Apnea: 171 samples
+2025-05-03 13:11:36 [INFO ] Oxygen Desaturation: 27 samples
+2025-05-03 13:11:36 [INFO ] EEG arousal: 0 samples
+2025-05-03 13:11:36 [INFO ] Hypopnea: 0 samples
+2025-05-03 13:11:36 [INFO ] --------------------------------------------
+2025-05-03 13:11:36 [INFO ] Test set class distribution:
+2025-05-03 13:11:36 [INFO ] Sleep stage W: 116 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage N1: 9 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage N2: 395 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage N3: 301 samples
+2025-05-03 13:11:36 [INFO ] Sleep stage R: 162 samples
+2025-05-03 13:11:36 [INFO ] Obstructive Apnea: 3 samples
+2025-05-03 13:11:36 [INFO ] Obstructive Hypopnea: 0 samples
+2025-05-03 13:11:36 [INFO ] Mixed Apnea: 5 samples
+2025-05-03 13:11:36 [INFO ] Central Apnea: 75 samples
+2025-05-03 13:11:36 [INFO ] Oxygen Desaturation: 46 samples
+2025-05-03 13:11:36 [INFO ] EEG arousal: 1 samples
+2025-05-03 13:11:36 [INFO ] Hypopnea: 0 samples
+2025-05-03 13:11:36 [INFO ] Class weights: {0: 5.951059132472944, 1: 6.283372372354142, 2: 2.149636608005174, 3: 3.4633110903166995, 4: 3.880800986488687, 5: 7.821939638886975, 6: 6.689461539988768, 7: 10.0, 8: 3.7246211604400403, 9: 7.1359330508972505, 10: 10.0, 11: 10.0}
+2025-05-03 13:11:37 [INFO ] Initializing NeuroSight with 12 classes, use_rnn=False, use_attention=False
