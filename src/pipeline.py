@@ -5,10 +5,11 @@ import pickle
 import tensorflow as tf
 import importlib
 import os
-from model_eeg.model import NeuroSight 
-from transformers import T5Tokenizer
-from transformers import T5ForConditionalGeneration
-
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'model_eeg'))) # Đường dẫn đến thư mục chứa file này
+from model_eeg.model import NeuroSight
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+import torch
 select_ch = "EEG C3-M2"  
 epoch_duration = 30  
 sfreq = 256.0 
@@ -143,7 +144,7 @@ def predict_disease_from_edf(edf_path, model_path, config_file, rf_model_path, t
         prediction = rf_model.predict(input_data)
 
         prediction_index = int(prediction[0])
-        disease_labels = ["Normal", "Seizures", "Sleep disorders", "Stroke"]
+        disease_labels = ["normal", "seizures", "sleep disorders", "cerebal infarction"]
 
         if 0 <= prediction_index < len(disease_labels):
             predicted_disease = disease_labels[prediction_index]
@@ -160,10 +161,10 @@ def predict_disease_from_edf(edf_path, model_path, config_file, rf_model_path, t
 
 if __name__ == "__main__":
     edf_path = "data/raw/study_sleep/11338_3454.edf"    #Duong dan file edf
-    model_path = "model/best_model.weights.h5"        #Duong dan toi model egg
+    model_path = "results/best_model.weights.h5"        #Duong dan toi model egg
     config_file = "src/model_eeg/config/sleepedfx.py"   #Duong dan cau hinh 
-    rf_model_path = "model/random_forest_model.pkl"   #Duong dan toi model diagnose
-    thresholds_path = "model/optimal_thresholds.npy"  #Duong dan toi file nguong quyet dinh
+    rf_model_path = "results/random_forest_model.pkl"   #Duong dan toi model diagnose
+    thresholds_path = "results/optimal_thresholds.npy"  #Duong dan toi file nguong quyet dinh
 
     predicted_disease = predict_disease_from_edf(
         edf_path=edf_path,
@@ -172,42 +173,45 @@ if __name__ == "__main__":
         rf_model_path=rf_model_path,
         thresholds_path=thresholds_path
     )
+    print(predicted_disease)
     #Duong dan toi mo hinh da finetuned
-    model_path="results/t5_base"
-
-    tokenizer=T5Tokenizer.from_pretrained(model_path)
-    model=T5ForConditionalGeneration.from_pretrained(model_path)
-
-
+    model_path="results/fine_tuned_gpt2"
+    tokenizer=GPT2Tokenizer.from_pretrained(model_path)
+    model=GPT2LMHeadModel.from_pretrained(model_path)
     print("=== Patient information ===")
     # Vòng lặp kiểm tra giới tính hợp lệ
-    valid_genders = {"male", "female"}
-
+    valid_genders = {"Male", "Female"}
     while True:
-        gender = input("Gender (male/female): ").strip().lower()
+        gender = input("Gender (Male/Female): ").strip()
         if gender in valid_genders:
             gender = gender.capitalize()
             break
         else:
-            print("Invalid gender! Pleas enter \"male\" or \"female\".")
+            print("Invalid gender! Pleas enter \"Male\" or \"Female\".")
     gender=gender.capitalize()
     past_diag = input("Past disease: ").strip()
-    
-    while True:
-        bmi_value = input("BMI value: ").strip()
-        age_day = input("Age day (vd: 273): ").strip()
-        try: 
-            age_day=float(age_day)
-            float(bmi_value)
-            break
-        except ValueError:
-            print("Error value! Please enter numeric values for age and BMI")
+    bmi_value = input("BMI value: ").strip()
+    age_day = input("Age day: ").strip()
     #Tao prompt
-    prompt=f"Patient information: - Diagnose: {predicted_disease}, - Past_diseases: {past_diag}, - Day-age: {age_day}, - Gender: {gender}, -Meas-type-value: {bmi_value}"
+    prompt=f"""Patient information: 
+    - Diagnose: {predicted_disease}
+    - Past_diseases: {past_diag}
+    - Days-age: {age_day}
+    - Gender: {gender}
+    - Meas-type-value: {bmi_value}"""
+    print(prompt)
     #Tokenizer
-    inputs=tokenizer(prompt,return_tensors="pt",truncation=True,padding=True)
+    inputs_ids=tokenizer(prompt,return_tensors="pt",truncation=True,padding=True).input_ids
+    
     #Sinh van ban
-    output=model.generate(**inputs,max_new_tokens=200)
-    output_text=tokenizer.decode(output[0],skip_special_tokens=True)
+    # output = model.generate(
+    # **inputs,
+    # max_length=1000,
+    # pad_token_id=tokenizer.eos_token_id
+    # )
+    with torch.no_grad():
+        output_ids = model.generate(inputs_ids, max_length=1000, pad_token_id=tokenizer.eos_token_id)
+
+    output_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
     #In ket qua
-    print(output_text)
+    print(f"Generated:\n{output_text.split('<|sep|>')[-1].strip()}")
