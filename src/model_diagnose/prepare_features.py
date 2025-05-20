@@ -48,6 +48,7 @@ for file in file_list:
     dfs.append(grouped)
     
 sleep_data=pd.concat(dfs,ignore_index=True)
+sleep_data.to_csv('../data/processed/features.csv')
 # Merge 2 df lai voi nhau
 
 features_df=pd.read_csv("data/processed/data_features.csv")
@@ -89,6 +90,8 @@ for feature in features_list:
 final_df = pivot_df[['STUDY_PAT_ID'] + features_list]
 
 # Lưu kết quả
+label_df=pd.read_csv('data/processed/DIAGNOSIS_cleaned.csv')
+final_df=pd.merge(final_df,label_df,on='STUDY_PAT_ID')
 final_df.to_csv('data/processed/diagnosis_sleep_data', index=False)
 
 
