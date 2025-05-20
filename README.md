@@ -29,3 +29,11 @@ pip install -r requirements.txt
 
 Follow this link to download the model: "https://drive.google.com/drive/folders/1Objfem_CUSrHjN9gtYN3Dre0dmIRTH-T?usp=drive_link"
 Place the downloaded model folder in the results directory
+
+## Usage
+
+1. Place your EEG EDF file in the appropriate input directory
+2. Run the pipeline using:
+    python src/pipeline.py
+3. Follow any on-screen prompts to complete the analysis like type input (Age day, Past_diseases,BMI value,...)
+4. Results will be saved to the output directory specified during execution
