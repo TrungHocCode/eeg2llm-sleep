@@ -24,3 +24,4 @@ def classify_diag(dx_code):
 df['diag']=df['DX_CODE'].apply(classify_diag)
 
 print(df.head())
+df.to_csv('data/processed/DIAGNOSIS_cleaned.csv')

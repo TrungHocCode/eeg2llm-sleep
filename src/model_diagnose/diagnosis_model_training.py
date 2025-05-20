@@ -6,10 +6,10 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report
 from sklearn.utils import resample
 from imblearn.over_sampling import SMOTE    
-
+from sklearn.metrics import accuracy_score
 #Doc du lieu tu file csv theo chunk
 processed_chunks = []
-for chunk in pd.read_csv('../data/processed/diagnosis_sleep_data.csv', chunksize=100000,low_memory=False):
+for chunk in pd.read_csv('data/processed/diagnosis_sleep_data.csv', chunksize=100000,low_memory=False):
     drop_columns=['Unnamed: 0','STUDY_PAT_ID','DX_CODE','DX_NAME']
     chunk=chunk.drop(drop_columns,axis=1)
     feature_cols = [col for col in chunk.columns if col != 'diag']
@@ -81,6 +81,27 @@ model.fit(X_train, y_train)
 
 # Dự đoán trên tập kiểm tra
 y_pred = model.predict(X_test)
-
+train_acc = accuracy_score(y_train, model.predict(X_train))
+test_acc = accuracy_score(y_test, model.predict(X_test))
+print(f"Train Accuracy: {train_acc:.2f}")
+print(f"Test Accuracy: {test_acc:.2f}")
 # Đánh giá mô hình
 print(classification_report(y_test, y_pred))
+
+from sklearn.model_selection import learning_curve
+import matplotlib.pyplot as plt
+import numpy as np
+
+train_sizes, train_scores, test_scores = learning_curve(
+    model, X, y, cv=5, scoring='accuracy', train_sizes=np.linspace(0.1, 1.0, 10))
+
+train_mean = train_scores.mean(axis=1)
+test_mean = test_scores.mean(axis=1)
+
+plt.plot(train_sizes, train_mean, 'o-', label="Training score")
+plt.plot(train_sizes, test_mean, 'o-', label="Validation score")
+plt.xlabel("Training Set Size")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.title("Learning Curve")
+plt.show()
